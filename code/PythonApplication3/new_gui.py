@@ -10,11 +10,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import QCursor
 from Ui_testui import Ui_MainWindow
 import stt as STT
-import sep as Sep
+import Sep as sep
 import os
 
 # 기능 불러오기
-sep =Sep.sep()
 stt = STT.stt(500)  #stt
 driver = make_driver()
 as_driver = make_driver()
@@ -34,17 +33,17 @@ class MainWindow(QMainWindow): # 메인 GUI 클래스
         self.ui.setupUi(self)
 
         # 버튼에 기능 연결
-        self.ui.start_btn.clicked.connect(self.startbtn)
-        self.ui.quit_btn.clicked.connect(self.quitbtn)
-        self.ui.btn_close.clicked.connect(self.quitbtn)
+        self.ui.start_btn.clicked.connect(self.start_btn)
+        self.ui.quit_btn.clicked.connect(self.quit_btn)
+        self.ui.btn_close.clicked.connect(self.quit_btn)
         self.ui.btn_maximize.clicked.connect(lambda: self.showMinimized())
         self.ui.op_slide.setRange(20,100)
         self.ui.op_slide.setValue(100) 
-        self.ui.op_slide.valueChanged.connect(self.opacitychange)
+        self.ui.op_slide.valueChanged.connect(self.opacity_change)
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.ui.pin_button.clicked.connect(self.btnpin)
-        self.ui.return_btn.clicked.connect(self.returnbtn)
-        self.ui.full_size_quit_btn.clicked.connect(self.zoomminus)
+        self.ui.return_btn.clicked.connect(self.return_btn)
+        self.ui.full_size_quit_btn.clicked.connect(self.zoom_minus)
 
         # GUI 추가 설정
         vbox = QVBoxLayout()
@@ -62,20 +61,20 @@ class MainWindow(QMainWindow): # 메인 GUI 클래스
     def show_web(self, url):
         self.ui.webvideo.setUrl(QUrl(url))
         
-    def startbtn(self): # Translate Start 버튼 눌렸을 때 실행될 기능
+    def start_btn(self): # Translate Start 버튼 눌렸을 때 실행될 기능
         Searcher.rope = True
         self.ui.stackedWindow.setCurrentWidget(self.ui.page_credits)
         combo = self.ui.text_translate.toPlainText()
         self.gui_signal.emit(combo)     
         self.th.playing = True
 
-    def quitbtn(self): # 프로그램 종료 시의 기능
+    def quit_btn(self): # 프로그램 종료 시의 기능
         QCoreApplication.instance().quit()
         as_driver.quit()
         driver.quit()
         os.system("taskkill /f /im chromedriver.exe /t")
 
-    def opacitychange(self): # 투명도 조절(블랜딩) 기능
+    def opacity_change(self): # 투명도 조절(블랜딩) 기능
         self.setWindowOpacity(float(self.ui.op_slide.value())/100)
 
     def btnpin(self): # 상단 고정 기능
@@ -108,12 +107,12 @@ class MainWindow(QMainWindow): # 메인 GUI 클래스
         except AttributeError:
             pass
     
-    def returnbtn(self): # 돌아가기 버튼 기능
+    def return_btn(self): # 돌아가기 버튼 기능
         self.ui.stackedWindow.setCurrentWidget(self.ui.page_home)
         self.gui_signal
         self.th.playing = False
     
-    def zoomminus(self): # 최소화 기능
+    def zoom_minus(self): # 최소화 기능
         self.ui.stackedWidget.setCurrentWidget(self.ui.page)
 
 class Searcher(QThread): # 쓰레드 클래스
@@ -123,7 +122,7 @@ class Searcher(QThread): # 쓰레드 클래스
         self.playing = True
 
     def Qsleep(self, time = 4): # 쓰레드 내에서 딜레이를 주기위한 기능
-        time = time * 1000
+        time = int(time * 1000)
         loop = QEventLoop()
         QTimer.singleShot(time, loop.quit) #msec
         loop.exec_()
@@ -177,6 +176,7 @@ class Searcher(QThread): # 쓰레드 클래스
                         continue
                     else:
                         break
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
